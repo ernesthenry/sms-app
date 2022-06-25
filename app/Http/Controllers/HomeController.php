@@ -1,37 +1,28 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\UsersPhoneNumber;
+use Illuminate\Http\Request;
+use Twilio\Rest\Client;
 
 class HomeController extends Controller
 {
-    //
-    public function storePhoneNumber(Request $request)
+    /**
+     * Show the forms with users phone number details.
+     *
+     * @return Response
+     */
+    public function show()
     {
-        //run validation on data sent in
-        $validatedData = $request->validate([
-            'phone_number' => 'required|unique:users_phone_number|numeric'
-        ]);
-        $user_phone_number_model = new UsersPhoneNumber($request->all());
-        $user_phone_number_model->save();
-        return back()->with(['success' => "{$request->phone_number} registered"]);
+        $users = UsersPhoneNumber::all();
+        return view('welcome', compact("users"));
     }
-
-    private function sendMessage($message, $recipients)
-    {
-        $account_sid = getenv("TWILIO_SID");
-        $auth_token = getenv("TWILIO_AUTH_TOKEN");
-        $twilio_number = getenv("TWILIO_NUMBER");
-        $client = new Client($account_sid, $auth_token);
-        $client->messages->create(
-            $recipients,
-            ['from' => $twilio_number, 'body' => $message]
-        );
-    }
-
-
+    /**
+     * Store a new user phone number.
+     *
+     * @param  Request  $request
+     * @return Response
+     */
     public function storePhoneNumber(Request $request)
     {
         //run validation on data sent in
@@ -43,8 +34,6 @@ class HomeController extends Controller
         $this->sendMessage('User registration successful!!', $request->phone_number);
         return back()->with(['success' => "{$request->phone_number} registered"]);
     }
-
-
     /**
      * Send message to a selected users
      */
@@ -61,4 +50,18 @@ class HomeController extends Controller
         }
         return back()->with(['success' => "Messages on their way!"]);
     }
+    /**
+     * Sends sms to user using Twilio's programmable sms client
+     * @param String $message Body of sms
+     * @param Number $recipients Number of recipient
+     */
+    private function sendMessage($message, $recipients)
+    {
+        $account_sid = getenv("TWILIO_SID");
+        $auth_token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_number = getenv("TWILIO_NUMBER");
+        $client = new Client($account_sid, $auth_token);
+        $client->messages->create($recipients, ['from' => $twilio_number, 'body' => $message]);
+    }
 }
+
