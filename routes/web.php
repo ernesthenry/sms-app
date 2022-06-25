@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,6 @@ Route::get('/', function () {
 });
 
 
-Route::get('/', 'HomeController@show');
-Route::post('/', 'HomeController@storePhoneNumber');
-Route::post('/custom', 'HomeController@sendCustomMessage');
+Route::get('/', 'App\Http\Controllers\HomeController@show');
+Route::post('/', 'App\Http\Controllers\HomeController@storePhoneNumber');
+Route::post('/custom', 'App\Http\Controllers\HomeController@sendCustomMessage');
