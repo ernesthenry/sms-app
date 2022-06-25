@@ -30,4 +30,35 @@ class HomeController extends Controller
             ['from' => $twilio_number, 'body' => $message]
         );
     }
+
+
+    public function storePhoneNumber(Request $request)
+    {
+        //run validation on data sent in
+        $validatedData = $request->validate([
+            'phone_number' => 'required|unique:users_phone_number|numeric',
+        ]);
+        $user_phone_number_model = new UsersPhoneNumber($request->all());
+        $user_phone_number_model->save();
+        $this->sendMessage('User registration successful!!', $request->phone_number);
+        return back()->with(['success' => "{$request->phone_number} registered"]);
+    }
+
+
+    /**
+     * Send message to a selected users
+     */
+    public function sendCustomMessage(Request $request)
+    {
+        $validatedData = $request->validate([
+            'users' => 'required|array',
+            'body' => 'required',
+        ]);
+        $recipients = $validatedData["users"];
+        // iterate over the array of recipients and send a twilio request for each
+        foreach ($recipients as $recipient) {
+            $this->sendMessage($validatedData["body"], $recipient);
+        }
+        return back()->with(['success' => "Messages on their way!"]);
+    }
 }
